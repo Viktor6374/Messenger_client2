@@ -6,7 +6,7 @@
 class CurrentUser : public User
 {
 public:
-    CurrentUser();
+    CurrentUser(QString username, QString first_name, QString second_name);
 };
 
 #endif // CURRENTUSER_H
