@@ -16,16 +16,16 @@ public:
     void set_answer_add_new_chat(Interlocutor& new_interlocutor);
     void set_answer_send_message(Message& message, QString& addressee);
     void set_new_message(Message& message);
-    Interlocutor * get_selected_interlocutor();
-    Interlocutor& get_interlocutor(int index);
-    Interlocutor& operator[](int index);
+    std::shared_ptr<Interlocutor> get_selected_interlocutor();
+    Interlocutor get_interlocutor(int index);
+    Interlocutor operator[](int index);
     int number_of_interlocutors();
     void set_selected_interlocutor(int index);
     void sort_users();
     ~Service();
 private:
     QVector<Interlocutor> _users;
-    Interlocutor * _selected_interlocutor;
+    std::shared_ptr<Interlocutor> _selected_interlocutor;
     RequestConnection _connection;
     bool _request_sent;
     CurrentUser _current_user;

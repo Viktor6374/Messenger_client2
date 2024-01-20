@@ -1,6 +1,6 @@
 #include "interlocutor.h"
 
-Interlocutor::Interlocutor() : User("", "", "")
+Interlocutor::Interlocutor() : User()
 {
 
 }
@@ -9,7 +9,6 @@ Interlocutor::Interlocutor(QString username, QString first_name, QString second_
 {
 
 }
-
 
 History_messaging& Interlocutor::get_history_messaging()
 {

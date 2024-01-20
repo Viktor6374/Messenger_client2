@@ -74,7 +74,7 @@ void MainWindow::change_filling()
         contacts->addItem(item);
         contacts->setItemWidget(item, label);
 
-        if (cur_interlocutor == *_service.get_selected_interlocutor()){
+        if (cur_interlocutor == *(_service.get_selected_interlocutor())){
             item->setBackground(Qt::yellow);
         }
     }

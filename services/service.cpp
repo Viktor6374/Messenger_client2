@@ -5,7 +5,6 @@ Service::Service(QVector<Interlocutor>& users, RequestConnection& connection, Cu
     _users(users), _connection(connection), _current_user(current_user)
 {
     _request_sent = false;
-    _selected_interlocutor = nullptr;
     mutex = new QMutex();
 }
 
@@ -13,6 +12,8 @@ bool Service::add_new_chat(QString username)
 {
     QMutexLocker locker(mutex);
     _request_sent = true;
+    locker.unlock();
+
     _connection.addNewChat(username);
 
     return wait_response();
@@ -22,9 +23,12 @@ bool Service::send_message(QString message_str)
 {
     QDateTime currentDateTime = QDateTime::currentDateTime();
 
-    QMutexLocker locker(mutex);
     Message message(_current_user.get_username(), message_str, currentDateTime);
+
+    QMutexLocker locker(mutex);
     _request_sent = true;
+    locker.unlock();
+
     _connection.sendMessage(message, _selected_interlocutor->get_username());
 
     return wait_response();
@@ -45,13 +49,13 @@ bool Service::wait_response()
     return true;
 }
 
-Interlocutor& Service::get_interlocutor(int index)
+Interlocutor Service::get_interlocutor(int index)
 {
     QMutexLocker locker(mutex);
     return _users[index];
 }
 
-Interlocutor& Service::operator[](int index)
+Interlocutor Service::operator[](int index)
 {
     QMutexLocker locker(mutex);
     return _users[index];
@@ -63,17 +67,18 @@ int Service::number_of_interlocutors()
     return _users.size();
 }
 
-Interlocutor * Service::get_selected_interlocutor()
+std::shared_ptr<Interlocutor> Service::get_selected_interlocutor()
 {
     QMutexLocker locker(mutex);
-    return _selected_interlocutor;
+    std::shared_ptr<Interlocutor> result = _selected_interlocutor;
+    return result;
 }
 
 void Service::set_selected_interlocutor(int index)
 {
     QMutexLocker locker(mutex);
     Interlocutor user = _users[index];
-    *_selected_interlocutor = user;
+    _selected_interlocutor = std::make_shared<Interlocutor>(user);
 }
 
 
@@ -84,7 +89,7 @@ void Service::set_answer_add_new_chat(Interlocutor& new_interlocutor)
     if (_request_sent){
         _request_sent = false;
     } else {
-        _selected_interlocutor = _users.data() + _users.size() - 1;
+        _selected_interlocutor = std::make_shared<Interlocutor>(_users[_users.size() - 1]);
     }
 }
 
@@ -92,6 +97,11 @@ void Service::set_answer_send_message(Message& message, QString& addressee)
 {
     QMutexLocker locker(mutex);
     Interlocutor * addr = find_interlocutor_by_username(addressee);
+
+    if (addr == nullptr){
+        throw std::logic_error("Incorrect username (incorrect format file)");
+    }
+
     addr->get_history_messaging().add_message(message);
     if (_request_sent){
         _request_sent = false;
@@ -106,6 +116,11 @@ void Service::set_new_message(Message& message)
 {
     QMutexLocker locker(mutex);
     Interlocutor * addr = find_interlocutor_by_username(message.get_sender_username());
+
+    if (addr == nullptr){
+        throw std::logic_error("Incorrect username (incorrect format file)");
+    }
+
     addr->get_history_messaging().add_message(message);
     if (_request_sent){
         _request_sent = false;
@@ -131,18 +146,15 @@ Interlocutor * Service::find_interlocutor_by_username(QString username)
 void Service::sort_users()
 {
     QMutexLocker locker(mutex);
-    QString username_selected = _selected_interlocutor->get_username();
     std::sort(_users.begin(), _users.end(), [](Interlocutor l, Interlocutor r){
         return l.get_history_messaging().get_first_message().get_send_time() <
                r.get_history_messaging().get_first_message().get_send_time();
     });
-    _selected_interlocutor = find_interlocutor_by_username(username_selected);
 }
 
 Service::~Service()
 {
     delete mutex;
-    delete _selected_interlocutor;
 }
 
 

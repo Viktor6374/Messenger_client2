@@ -87,7 +87,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <item>
       <widget class="QPushButton" name="Update">
        <property name="text">
-        <string>Update</string>
+        <string/>
        </property>
       </widget>
      </item>

@@ -1,5 +1,7 @@
 #include "user.h"
 
+User::User(){}
+
 User::User(QString username, QString first_name, QString second_name)
 {
     this->username = username;

@@ -6,6 +6,7 @@
 class User
 {
 protected:
+    User();
     User(QString username, QString first_name, QString second_name);
 public:
     QString get_username();
@@ -13,7 +14,7 @@ public:
     QString get_second_name();
     bool operator==(const User& other) const;
     bool operator!=(const User& other) const;
-private:
+protected:
     QString username;
     QString first_name;
     QString second_name;
