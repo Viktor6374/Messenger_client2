@@ -11,6 +11,8 @@ public:
     QString get_sender_username();
     QString get_message();
     QDateTime get_send_time();
+    bool operator>(const Message& other) const;
+    bool operator<(const Message& other) const;
 private:
     QString sender_username;
     QString message;

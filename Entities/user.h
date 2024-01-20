@@ -11,6 +11,8 @@ public:
     QString get_username();
     QString get_first_name();
     QString get_second_name();
+    bool operator==(const User& other) const;
+    bool operator!=(const User& other) const;
 private:
     QString username;
     QString first_name;

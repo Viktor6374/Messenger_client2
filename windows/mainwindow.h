@@ -2,7 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "./services/service.h"
+#include <QMutex>
+#include "../services/service.h"
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -19,8 +21,16 @@ public:
 private slots:
     void on_AddNew_clicked();
 
+    void on_SendButton_clicked();
+
+    void on_OpenChat_clicked();
+public slots:
+    void change_filling();
+
 private:
     Ui::MainWindow *ui;
     Service _service;
+    void checking_operation_execution(bool result);
+    QMutex mutex;
 };
 #endif // MAINWINDOW_H

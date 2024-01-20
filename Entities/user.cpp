@@ -18,3 +18,14 @@ QString User::get_first_name() {
 QString User::get_second_name() {
     return second_name;
 }
+
+bool User::operator==(const User& other) const
+{
+    return username == other.username;
+}
+
+bool User::operator!=(const User& other) const
+{
+    return !(*this == other);
+}
+

@@ -10,8 +10,8 @@ class RequestConnection
 {
 public:
     RequestConnection(QTcpSocket * socket);
-    bool addNewChat(QString username);
-    bool sendMessage(Message message, QString addressee);
+    void addNewChat(QString username);
+    void sendMessage(Message message, QString addressee);
     ~RequestConnection();
 private:
     QTcpSocket *_socket;

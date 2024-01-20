@@ -1,18 +1,21 @@
 #include "requestconnection.h"
+#include "./requestfactory.h"
 
 RequestConnection::RequestConnection(QTcpSocket * socket) : _socket(socket)
 {
 
 }
 
-bool RequestConnection::addNewChat(QString username)
+void RequestConnection::addNewChat(QString username)
 {
-    return false;
+    QByteArray request = RequestFactory::add_new_user_request(username);
+    _socket->write(request);
 }
 
-bool RequestConnection::sendMessage(Message message, QString addressee)
+void RequestConnection::sendMessage(Message message, QString addressee)
 {
-    return false;
+    QByteArray request = RequestFactory::send_message_request(message, addressee);
+    _socket->write(request);
 }
 
 RequestConnection::~RequestConnection()

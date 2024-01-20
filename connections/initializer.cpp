@@ -6,8 +6,9 @@
 #include <QVector>
 #include "../Entities/interlocutor.h"
 #include <string>
+#include "../Threads/response_listener.h"
 
-Initializer::Initializer(const QHostAddress & host_address, quint16 port) : delimiter("/n")
+Initializer::Initializer(const QHostAddress & host_address, quint16 port)
 {
     _socket = new QTcpSocket(this);
     _socket->connectToHost(host_address, port);
@@ -17,7 +18,7 @@ Initializer::Initializer(const QHostAddress & host_address, quint16 port) : deli
     }
 }
 
-Service * Initializer::initialize(QString login, QString password){
+std::pair<Service *, Response_listener *> Initializer::initialize(QString login, QString password){
     QByteArray request = RequestFactory::initialization_request(login, password);
     _socket->write(request);
 
@@ -29,16 +30,15 @@ Service * Initializer::initialize(QString login, QString password){
         }
     }
 
-    QVector<Interlocutor> users = ResponseParser::parse_initialization_response(response);
-    QMap<QString, Interlocutor> users_map;
+    QVector<Interlocutor> users;
 
-    for (int i = 0; i < users.size(); i++){
-        users_map[users[i].get_username()] = users[i];
-    }
+    CurrentUser user = ResponseParser::parse_initialization_response(response, users);
 
     RequestConnection connection(_socket);
 
-    Service * result = new Service(users_map, connection);
+    Service * result = new Service(users, connection, user);
 
-    return result;
+    Response_listener * listener = new Response_listener(_socket, result);
+
+    return std::make_pair(result, listener);
 }

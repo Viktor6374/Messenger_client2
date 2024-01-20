@@ -17,3 +17,15 @@ QString Message::get_message() {
 QDateTime Message::get_send_time() {
     return send_time;
 }
+
+bool Message::operator>(const Message& other) const
+{
+    return send_time > other.send_time;
+}
+
+bool Message::operator<(const Message& other) const
+{
+    return send_time < other.send_time;
+}
+
+

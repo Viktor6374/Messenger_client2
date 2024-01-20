@@ -2,15 +2,16 @@
 #define INITIALIZER_H
 #include <QTcpSocket>
 #include "../services/service.h"
+#include "../Threads/response_listener.h"
 
 class Initializer : QObject
 {
 public:
     Initializer(const QHostAddress & host_address, quint16 port);
-    Service * initialize(QString login, QString password);
+    std::pair<Service *, Response_listener *> initialize(QString login, QString password);
 private:
     QTcpSocket *_socket;
-    const QString delimiter;
+    const QString delimiter = "/n";
 };
 
 #endif // INITIALIZER_H

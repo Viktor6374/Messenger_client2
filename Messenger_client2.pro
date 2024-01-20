@@ -15,12 +15,15 @@ SOURCES += \
     Entities/interlocutor.cpp \
     Entities/message.cpp \
     Entities/user.cpp \
+    Threads/response_listener.cpp \
+    Threads/response_processing.cpp \
     connections/initializer.cpp \
     connections/requestconnection.cpp \
     connections/requestfactory.cpp \
     connections/responseparser.cpp \
     main.cpp \
     services/service.cpp \
+    windows/add_new_chat.cpp \
     windows/authorization.cpp \
     windows/mainwindow.cpp
 
@@ -30,15 +33,19 @@ HEADERS += \
     Entities/interlocutor.h \
     Entities/message.h \
     Entities/user.h \
+    Threads/response_listener.h \
+    Threads/response_processing.h \
     connections/initializer.h \
     connections/requestconnection.h \
     connections/requestfactory.h \
     connections/responseparser.h \
     services/service.h \
+    windows/add_new_chat.h \
     windows/authorization.h \
     windows/mainwindow.h
 
 FORMS += \
+    add_new_chat.ui \
     authorization.ui \
     mainwindow.ui
 
