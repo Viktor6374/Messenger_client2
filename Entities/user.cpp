@@ -9,6 +9,22 @@ User::User(QString username, QString first_name, QString second_name)
     this->second_name = second_name;
 }
 
+User::User(const User & other)
+{
+    this->username = other.username;
+    this->first_name = other.first_name;
+    this->second_name = other.second_name;
+}
+
+User & User::operator = (const User & other)
+{
+    this->username = other.username;
+    this->first_name = other.first_name;
+    this->second_name = other.second_name;
+
+    return *this;
+}
+
 QString User::get_username() {
     return username;
 }

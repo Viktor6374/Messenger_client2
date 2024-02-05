@@ -4,10 +4,13 @@
 #include <QDateTime>
 #include <QString>
 
-class Message
+class Message : public QObject
 {
+    Q_OBJECT
 public:
     Message(QString sender_username, QString message, QDateTime send_time);
+    Message(const Message &);
+    Message & operator =(const Message & other);
     QString get_sender_username();
     QString get_message();
     QDateTime get_send_time();

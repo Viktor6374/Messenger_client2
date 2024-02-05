@@ -5,10 +5,13 @@
 #include <QMutex>
 #include "message.h"
 
-class History_messaging
+class History_messaging : public QObject
 {
+    Q_OBJECT
 public:
     History_messaging();
+    History_messaging(const History_messaging & other);
+    History_messaging & operator = (const History_messaging & other);
     void add_message(Message message);
     void clear();
     Message get_next_message();

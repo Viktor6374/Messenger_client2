@@ -1,14 +1,17 @@
 #ifndef USER_H
 #define USER_H
 #include <QString>
+#include <QObject>
 
 
-class User
+class User : public QObject
 {
-protected:
+    Q_OBJECT
+public:
     User();
     User(QString username, QString first_name, QString second_name);
-public:
+    User(const User & other);
+    User & operator = (const User & other);
     QString get_username();
     QString get_first_name();
     QString get_second_name();

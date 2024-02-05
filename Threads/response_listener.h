@@ -3,7 +3,7 @@
 
 #include <QThread>
 #include <QTcpSocket>
-#include "../windows/mainwindow.h"
+
 #include "../services/service.h"
 #include <QJsonObject>
 
@@ -11,18 +11,29 @@ class Response_listener : public QThread
 {
     Q_OBJECT
 public:
-    explicit Response_listener(QTcpSocket * socket, Service * service, QObject *parent = nullptr);
+    explicit Response_listener(const QHostAddress & host_address, quint16 port, QString login, QString password, Service * service);
     void run() override;
+    QTcpSocket * get_socket();
 private:
-    QTcpSocket * _socket;
+
+    QHostAddress _host_address;
+    quint16 _port;
+    QString _login;
+    QString _password;
     Service * _service;
-    const QString delimiter = "/n";
-    void handle(QByteArray message);
-    void handle_send_message(QJsonObject& message);
-    void handle_add_interlocutor(QJsonObject& message);
-    void handle_new_message(QJsonObject& message);
+
+
+    QTcpSocket * _socket;
 signals:
-    void change_filling();
+    void send_message_response(Message message, QString addressee);
+    void add_new_chat_response(Interlocutor new_interlocutor);
+    void send_message_request(Message message, QString addressee);
+    void add_new_chat_request(QString username);
+    void new_message(Message message);
+    void do_read();
+public slots:
+    void send_message(Message message, QString addressee);
+    void add_new_chat(QString username);
 };
 
 #endif // RESPONSE_LISTENER_H

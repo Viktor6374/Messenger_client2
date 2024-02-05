@@ -8,7 +8,7 @@ class Initializer : QObject
 {
 public:
     Initializer(const QHostAddress & host_address, quint16 port);
-    std::pair<Service *, Response_listener *> initialize(QString login, QString password);
+    QTcpSocket * initialize(QString login, QString password, Service * service);
 private:
     QTcpSocket *_socket;
     const QString delimiter = "/n";

@@ -2,80 +2,52 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include "../connections/responseparser.h"
+#include <iostream>
+#include "../connections/initializer.h"
+#include "../connections/requestfactory.h"
+#include "./response_listener_worker.h"
+#include <QEventLoop>
 
 
-Response_listener::Response_listener(QTcpSocket * socket, Service * service, QObject *parent)
-    : QThread{parent}
+
+Response_listener::Response_listener(const QHostAddress & host_address, quint16 port, QString login, QString password, Service * service) :
+    _host_address(host_address),
+    _port(port),
+    _login(login),
+    _password(password),
+    _service(service)
 {
-    _socket = socket;
-    _service = service;
+
+}
+
+QTcpSocket * Response_listener::get_socket()
+{
+    return _socket;
 }
 
 void Response_listener::run()
 {
-    QByteArray response;
+    Initializer init(_host_address, _port);
+    _socket = init.initialize(_login, _password, _service);
 
-    QByteArray byteArray = delimiter.toUtf8();
+    QEventLoop loop;
+    Response_listener_worker worker(_socket, this);
 
-    QByteArrayView del(byteArray);
-    while (1){
-        if (_socket->waitForReadyRead()) {
-            response.append(_socket->readAll());
-            while (response.contains(del)) {
-                int endIndex = response.indexOf(del) + delimiter.length();
-                QByteArray message = response.left(endIndex);
-
-                handle(message);
-
-                response.remove(0, endIndex);
-            }
-        }
-    }
+    QObject::connect(this, SIGNAL(send_message_request(Message,QString)), &worker, SLOT(send_message(Message, QString)), Qt::QueuedConnection);
+    QObject::connect(this, SIGNAL(add_new_chat_request(QString)), &worker, SLOT(add_new_chat(QString)), Qt::QueuedConnection);
+    QObject::connect(this, SIGNAL(do_read()), &worker, SLOT(do_read_slot()), Qt::QueuedConnection);
+    loop.exec();
 }
 
-void Response_listener::handle(QByteArray message)
+
+void Response_listener::send_message(Message message, QString addressee)
 {
-    QJsonDocument jsonDocument = QJsonDocument::fromJson(message);
-
-    QJsonObject jsonMessage;
-
-    if (!jsonDocument.isNull() && jsonDocument.isObject()) {
-        jsonMessage = jsonDocument.object();
-    } else {
-        throw std::exception("Incorrect format file");
-    }
-
-    QString command = jsonMessage.value("command").toString();
-    if (command == "send_message"){
-        handle_send_message(jsonMessage);
-    } else if (command == "add_interlocutor"){
-        handle_add_interlocutor(jsonMessage);
-    } else if (command == "new_message"){
-        handle_new_message(jsonMessage);
-    } else {
-        throw std::exception("Incorrect format file");
-    }
+    this->send_message_request(message, addressee);
 }
 
-void Response_listener::handle_send_message(QJsonObject& message)
+void Response_listener::add_new_chat(QString username)
 {
-    std::pair<Message, QString> message_and_addressee = ResponseParser::parse_send_message_response(message);
-    _service->set_answer_send_message(message_and_addressee.first, message_and_addressee.second);
-    change_filling();
+    qDebug() << "try add new chat";
+    this->add_new_chat_request(username);
 }
-
-void Response_listener::handle_add_interlocutor(QJsonObject& message)
-{
-    Interlocutor interlocutor = ResponseParser::parse_add_new_chat_response(message);
-    _service->set_answer_add_new_chat(interlocutor);
-    change_filling();
-}
-
-void Response_listener::handle_new_message(QJsonObject& message)
-{
-    Message mess = ResponseParser::parse_new_message_response(message);
-    _service->set_new_message(mess);
-    change_filling();
-}
-
 

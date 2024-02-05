@@ -6,6 +6,22 @@ History_messaging::History_messaging()
     mutex = new QMutex();
 }
 
+History_messaging::History_messaging(const History_messaging & other)
+{
+//    qDebug() << "messages before" << other.messages.size();
+    messages = std::vector<Message>(other.messages);
+//    qDebug() << "messages after" << messages.size();
+    current_message = 0;
+    mutex = new QMutex();
+}
+
+History_messaging & History_messaging::operator = (const History_messaging & other)
+{
+    messages = std::vector<Message>(other.messages);
+
+    return *this;
+}
+
 void History_messaging::add_message(Message message)
 {
     QMutexLocker locker(mutex);
@@ -58,7 +74,6 @@ void History_messaging::sort_messages()
 
 History_messaging::~History_messaging()
 {
-    delete mutex;
 }
 
 

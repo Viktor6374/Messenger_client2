@@ -7,10 +7,13 @@
 #include "../Entities/interlocutor.h"
 #include <string>
 #include "../Threads/response_listener.h"
+#include <iostream>
+#include "../Threads/response_processing.h"
+
 
 Initializer::Initializer(const QHostAddress & host_address, quint16 port)
 {
-    _socket = new QTcpSocket(this);
+    _socket = new QTcpSocket();
     _socket->connectToHost(host_address, port);
 
     if (!_socket->waitForConnected()) {
@@ -18,27 +21,35 @@ Initializer::Initializer(const QHostAddress & host_address, quint16 port)
     }
 }
 
-std::pair<Service *, Response_listener *> Initializer::initialize(QString login, QString password){
+QTcpSocket * Initializer::initialize(QString login, QString password, Service * service){
     QByteArray request = RequestFactory::initialization_request(login, password);
     _socket->write(request);
+    _socket->waitForBytesWritten();
+
+    qDebug() << "message recorded: " << request.toStdString();
 
     QByteArray response;
-    while (1){
-        response.append(_socket->readAll());
-        if (response.mid(response.length() - delimiter.length(), delimiter.length()) == delimiter){
-            break;
-        }
+
+    //    Response_processing timeout;
+    //    timeout.start();
+    //    timeout.wait();
+    if (_socket->waitForReadyRead(5000)) {
+        response = _socket->readAll();
     }
+    if (response.mid(response.length() - delimiter.length(), delimiter.length()) != delimiter){
+        QString st = "Invalid server answer: " + QString::fromUtf8(response);
+        throw std::logic_error(st.toStdString());
+    }
+
+    qDebug() << "message received: " << response.toStdString();
+
+    response.chop(2);
 
     QVector<Interlocutor> users;
 
     CurrentUser user = ResponseParser::parse_initialization_response(response, users);
 
-    RequestConnection connection(_socket);
+    service->init(users, user);
 
-    Service * result = new Service(users, connection, user);
-
-    Response_listener * listener = new Response_listener(_socket, result);
-
-    return std::make_pair(result, listener);
+    return _socket;
 }
