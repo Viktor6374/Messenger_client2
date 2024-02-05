@@ -68,8 +68,11 @@ int Service::number_of_interlocutors()
 
 std::shared_ptr<Interlocutor> Service::get_selected_interlocutor()
 {
-    Interlocutor user = find_interlocutor_by_username(_selected_interlocutor->get_username());
-    std::shared_ptr<Interlocutor> result = std::make_shared<Interlocutor>(user);
+    if (_selected_interlocutor == nullptr){
+        return nullptr;
+    }
+    Interlocutor * user = find_interlocutor_by_username(_selected_interlocutor->get_username());
+    std::shared_ptr<Interlocutor> result = std::make_shared<Interlocutor>(*user);
     return result;
 }
 

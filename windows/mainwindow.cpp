@@ -8,6 +8,7 @@
 #include <QLabel>
 #include <QListWidgetItem>
 #include <QException>
+#include <QStringBuilder>
 
 MainWindow::MainWindow(Service * service, QWidget *parent)
     : QMainWindow(parent)
@@ -31,6 +32,16 @@ void MainWindow::on_AddNew_clicked()
     window.setWindowTitle("Who do you want to communicate with?");
     window.exec();
 
+    if (_service->find_interlocutor_by_username(username) != nullptr){
+        for (int i = 0; i < _service->number_of_interlocutors(); i++){
+            if (_service->get_interlocutor(i).get_username() == username){
+                _service->set_selected_interlocutor(i);
+                change_filling();
+                return;
+            }
+        }
+    }
+
     bool result = _service->add_new_chat(username);
 
     checking_operation_execution(result);
@@ -50,8 +61,14 @@ void MainWindow::on_SendButton_clicked()
 
 void MainWindow::on_OpenChat_clicked()
 {
+    int size = this->findChild<QListWidget*>("Contacts")->count();
     int index = this->findChild<QListWidget*>("Contacts")->currentRow();
-    _service->set_selected_interlocutor(index);
+
+    if (index == -1){
+        return;
+    }
+
+    _service->set_selected_interlocutor(size - 1 - index);
     change_filling();
 }
 
@@ -101,12 +118,21 @@ void MainWindow::change_filling()
     for (int i = 0; i < history.get_quantity_messages(); i++){
         qDebug() << "draw" << i << "message";
         Message mess = history.get_next_message();
+
+        QString builder;
+        builder = "Sender:" % mess.get_sender_username() % "Time:" % mess.get_send_time().toString();
+        QStringList str_list = mess.get_message().split("\n");
+        for (int i = 0; i < str_list.size(); i++){
+            builder = builder % "\n\t";
+            builder = builder % str_list[i];
+        }
+
         QLabel * label = new QLabel("Sender: " + mess.get_sender_username()
-                                   + "Time: " + mess.get_send_time().toString()
-                                   + "\n\t" + mess.get_message());
+                                   + " Time: " + mess.get_send_time().toString()
+                                   + builder);
         QListWidgetItem *item = new QListWidgetItem();
 
-        item->setSizeHint(QSize(chat->width(), 30));
+        item->setSizeHint(QSize(chat->width(), 15 + 15 * str_list.size()));
 
         chat->addItem(item);
         chat->setItemWidget(item, label);

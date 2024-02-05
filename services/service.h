@@ -19,6 +19,7 @@ public:
     int number_of_interlocutors();
     void set_selected_interlocutor(int index);
     void sort_users();
+    Interlocutor * find_interlocutor_by_username(QString username);
     ~Service();
 
     void init(QVector<Interlocutor>& users, CurrentUser& current_user);
@@ -38,7 +39,6 @@ private:
     bool _request_sent;
     CurrentUser _current_user;
     bool wait_response();
-    Interlocutor * find_interlocutor_by_username(QString username);
 };
 
 #endif // SERVICE_H
