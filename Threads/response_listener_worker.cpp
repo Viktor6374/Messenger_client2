@@ -82,7 +82,9 @@ void Response_listener_worker::handle(QByteArray message)
         handle_add_interlocutor(jsonMessage);
     } else if (command == "new_message"){
         handle_new_message(jsonMessage);
-    } else {
+    } else if (command == "error"){
+        handle_error(jsonMessage);
+    }else {
         throw std::exception("Incorrect format file");
     }
 }
@@ -107,4 +109,10 @@ void Response_listener_worker::handle_new_message(QJsonObject& message)
     Message mess = ResponseParser::parse_new_message_response(message);
     _lisener->new_message(mess);
 
+}
+
+void Response_listener_worker::handle_error(QJsonObject& message)
+{
+    QString text = message.value("text").toString();
+    qDebug() << "Server error: " << text;
 }

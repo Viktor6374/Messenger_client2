@@ -1,5 +1,6 @@
 #include "service.h"
 #include "../Threads/response_processing.h"
+#include <QApplication>
 
 Service::Service(QVector<Interlocutor>& users, CurrentUser& current_user) :
     _users(users), _current_user(current_user)
@@ -86,7 +87,6 @@ void Service::set_selected_interlocutor(int index)
 
 void Service::set_answer_add_new_chat(Interlocutor new_interlocutor)
 {
-    qDebug() << "2";
     _users.push_back(new_interlocutor);
     if (_request_sent){
         _request_sent = false;
@@ -95,6 +95,11 @@ void Service::set_answer_add_new_chat(Interlocutor new_interlocutor)
     }
 
     change_filling();
+}
+
+void Service::kill_application()
+{
+    QApplication::quit();
 }
 
 void Service::set_answer_send_message(Message message, QString addressee)
@@ -149,6 +154,11 @@ Interlocutor * Service::find_interlocutor_by_username(QString username)
 void Service::sort_users()
 {
     std::sort(_users.begin(), _users.end(), [](Interlocutor l, Interlocutor r){
+        if (l.get_history_messaging().get_quantity_messages() == 0){
+            return false;
+        } else if (r.get_history_messaging().get_quantity_messages() == 0){
+            return true;
+        }
         return l.get_history_messaging().get_first_message().get_send_time() <
                r.get_history_messaging().get_first_message().get_send_time();
     });

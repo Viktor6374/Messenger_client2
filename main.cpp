@@ -32,6 +32,8 @@ int main(int argc, char *argv[])
 
         Service * service = new Service;
         Response_listener * listener = new Response_listener(QHostAddress::LocalHost, 9000, login, password, service);
+
+        QObject::connect(listener, SIGNAL(kill_application()), service, SLOT(kill_application()));
         listener->start();
 
         MainWindow w(service);
@@ -43,6 +45,7 @@ int main(int argc, char *argv[])
         QObject::connect(listener, SIGNAL(send_message_response(Message,QString)), service, SLOT(set_answer_send_message(Message,QString)));
         QObject::connect(listener, SIGNAL(add_new_chat_response(Interlocutor)), service, SLOT(set_answer_add_new_chat(Interlocutor)));
         QObject::connect(listener, SIGNAL(new_message(Message)), service, SLOT(set_new_message(Message)));
+
         w.show();
         listener->do_read();
         service->change_filling();

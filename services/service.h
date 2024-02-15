@@ -33,6 +33,7 @@ public slots:
     void set_answer_add_new_chat(Interlocutor new_interlocutor);
     void set_answer_send_message(Message message, QString addressee);
     void set_new_message(Message message);
+    void kill_application();
 private:
     QVector<Interlocutor> _users;
     std::shared_ptr<Interlocutor> _selected_interlocutor;

@@ -7,6 +7,7 @@
 #include "../connections/requestfactory.h"
 #include "./response_listener_worker.h"
 #include <QEventLoop>
+#include <QApplication>
 
 
 
@@ -27,16 +28,21 @@ QTcpSocket * Response_listener::get_socket()
 
 void Response_listener::run()
 {
-    Initializer init(_host_address, _port);
-    _socket = init.initialize(_login, _password, _service);
+    try{
+        Initializer init(_host_address, _port);
+        _socket = init.initialize(_login, _password, _service);
 
-    QEventLoop loop;
-    Response_listener_worker worker(_socket, this);
+        QEventLoop loop;
+        Response_listener_worker worker(_socket, this);
 
-    QObject::connect(this, SIGNAL(send_message_request(Message,QString)), &worker, SLOT(send_message(Message, QString)), Qt::QueuedConnection);
-    QObject::connect(this, SIGNAL(add_new_chat_request(QString)), &worker, SLOT(add_new_chat(QString)), Qt::QueuedConnection);
-    QObject::connect(this, SIGNAL(do_read()), &worker, SLOT(do_read_slot()), Qt::QueuedConnection);
-    loop.exec();
+        QObject::connect(this, SIGNAL(send_message_request(Message,QString)), &worker, SLOT(send_message(Message, QString)), Qt::QueuedConnection);
+        QObject::connect(this, SIGNAL(add_new_chat_request(QString)), &worker, SLOT(add_new_chat(QString)), Qt::QueuedConnection);
+        QObject::connect(this, SIGNAL(do_read()), &worker, SLOT(do_read_slot()), Qt::QueuedConnection);
+        loop.exec();
+    } catch (std::exception e){
+        qDebug() << "Error: " << e.what();
+        kill_application();
+    }
 }
 
 

@@ -25,6 +25,7 @@ private:
     void handle_send_message(QJsonObject& message);
     void handle_add_interlocutor(QJsonObject& message);
     void handle_new_message(QJsonObject& message);
+    void handle_error(QJsonObject& message);
 };
 
 #endif // RESPONSE_LISTENER_WORKER_H

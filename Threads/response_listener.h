@@ -31,6 +31,7 @@ signals:
     void add_new_chat_request(QString username);
     void new_message(Message message);
     void do_read();
+    void kill_application();
 public slots:
     void send_message(Message message, QString addressee);
     void add_new_chat(QString username);
