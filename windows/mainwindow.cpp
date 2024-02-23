@@ -120,16 +120,14 @@ void MainWindow::change_filling()
         Message mess = history.get_next_message();
 
         QString builder;
-        builder = "Sender:" % mess.get_sender_username() % "Time:" % mess.get_send_time().toString();
+        builder = "Sender: " % mess.get_sender_username() % " Time: " % mess.get_send_time().toString();
         QStringList str_list = mess.get_message().split("\n");
         for (int i = 0; i < str_list.size(); i++){
             builder = builder % "\n\t";
             builder = builder % str_list[i];
         }
 
-        QLabel * label = new QLabel("Sender: " + mess.get_sender_username()
-                                   + " Time: " + mess.get_send_time().toString()
-                                   + builder);
+        QLabel * label = new QLabel(builder);
         QListWidgetItem *item = new QListWidgetItem();
 
         item->setSizeHint(QSize(chat->width(), 15 + 15 * str_list.size()));

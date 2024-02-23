@@ -40,7 +40,6 @@ void Response_listener_worker::do_read_slot()
     QByteArray byteArray = QByteArray::fromStdString("/n");
     QByteArrayView delimiter = QByteArrayView(byteArray);
 
-    qDebug() << "try read";
     try{
         if (_socket->waitForReadyRead(1000)) {
             qDebug() << "read begin";
@@ -72,7 +71,7 @@ void Response_listener_worker::handle(QByteArray message)
     if (!jsonDocument.isNull() && jsonDocument.isObject()) {
         jsonMessage = jsonDocument.object();
     } else {
-        throw std::exception("Incorrect format file");
+        throw std::logic_error("Incorrect format file");
     }
 
     QString command = jsonMessage.value("command").toString();
@@ -85,7 +84,7 @@ void Response_listener_worker::handle(QByteArray message)
     } else if (command == "error"){
         handle_error(jsonMessage);
     }else {
-        throw std::exception("Incorrect format file");
+        throw std::logic_error("Incorrect format file");
     }
 }
 

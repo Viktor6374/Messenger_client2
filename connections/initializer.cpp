@@ -17,7 +17,7 @@ Initializer::Initializer(const QHostAddress & host_address, quint16 port)
     _socket->connectToHost(host_address, port);
 
     if (!_socket->waitForConnected()) {
-        throw std::exception("a connection error has occurred");
+        throw std::logic_error("a connection error has occurred");
     }
 }
 

@@ -7,7 +7,7 @@
 #include "../connections/requestfactory.h"
 #include "./response_listener_worker.h"
 #include <QEventLoop>
-#include <QApplication>
+
 
 
 

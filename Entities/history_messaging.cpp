@@ -39,7 +39,7 @@ Message History_messaging::get_next_message()
 {
     QMutexLocker locker(mutex);
     if (current_message == messages.size()){
-        throw std::exception("The previous message was the last one");
+        throw std::logic_error("The previous message was the last one");
     }
 
     return messages[current_message++];
@@ -49,7 +49,7 @@ Message History_messaging::get_first_message()
 {
     QMutexLocker locker(mutex);
     if (messages.size() == 0){
-        throw std::exception("The message list is empty");
+        throw std::logic_error("The message list is empty");
     }
     return messages[0];
 }
